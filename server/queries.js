@@ -2,12 +2,10 @@
 const { Pool } = require('pg');
 
 const pool = new Pool({
-  user: 'tony',
-  host: 'localhost',
-  database: 'favlinks',
-  password: 'password',
-  port: 5432,
-});
+    connectionString: 'postgres://tony:xtGIUlXCAE9qnUU3zxq63u84adoj8BTm@dpg-d4kaqu7gi27c73ckt8r0-a.oregon-postgres.render.com:5432/links_ztwt',
+    ssl: { rejectUnauthorized: false }, // needed for Render
+  });
+  
 
 // READ – get all links
 const getLinks = (request, response) => {
@@ -19,6 +17,24 @@ const getLinks = (request, response) => {
     response.status(200).json(results.rows);
   });
 };
+
+const initDb = async () => {
+    try {
+      await pool.query(`
+        CREATE TABLE IF NOT EXISTS links (
+          id SERIAL PRIMARY KEY,
+          name VARCHAR(100) NOT NULL,
+          url  VARCHAR(255) NOT NULL
+        );
+      `);
+      console.log('links table is ready');
+    } catch (err) {
+      console.error('Error initializing DB', err);
+    }
+  };
+  
+  initDb();
+  
 
 // CREATE – add a new link
 const createLink = (request, response) => {
